@@ -20,8 +20,9 @@ export function UserProfile({ onBack }: UserProfileProps) {
     }
   };
 
-  const categories = ['脚', '背中', '胸', '上半身', '有酸素'];
+  const categories = ['脚', '背中', '胸', '上半身', '有酸素', 'フリーウェイト', 'マシン'];
   const stations = ['渋谷', '新宿', '恵比寿', '表参道', '池袋', '中目黒', '原宿'];
+  const days = ['月', '火', '水', '木', '金', '土', '日'];
 
   const toggleCategory = (cat: string) => {
     if (!editForm) return;
@@ -30,6 +31,15 @@ export function UserProfile({ onBack }: UserProfileProps) {
       ? current.filter(c => c !== cat)
       : [...current, cat];
     setEditForm({ ...editForm, preferredCategories: updated });
+  };
+
+  const toggleDay = (day: string) => {
+    if (!editForm) return;
+    const current = editForm.preferredDays || [];
+    const updated = current.includes(day)
+      ? current.filter(d => d !== day)
+      : [...current, day];
+    setEditForm({ ...editForm, preferredDays: updated });
   };
 
   return (
@@ -50,9 +60,9 @@ export function UserProfile({ onBack }: UserProfileProps) {
           {isEditing ? (
             <button
               onClick={handleSave}
-              className="text-cyan-600 font-bold flex items-center gap-1"
+              className="px-4 py-1.5 bg-cyan-500 text-white rounded-full font-bold flex items-center gap-1 shadow-lg shadow-cyan-200"
             >
-              <Check className="size-5" />
+              <Check className="size-4" />
               保存
             </button>
           ) : (
@@ -69,10 +79,10 @@ export function UserProfile({ onBack }: UserProfileProps) {
         </div>
 
         {/* プロフィールカード */}
-        <div className="bg-white rounded-3xl p-6 mb-6 shadow-lg">
+        <div className="bg-white rounded-3xl p-6 mb-6 shadow-xl border border-slate-100">
           {/* アイコンと基本情報 */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="size-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-3xl shadow-inner">
+            <div className="size-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-3xl shadow-inner border-4 border-white">
               💪
             </div>
             <div className="flex-1">
@@ -97,55 +107,103 @@ export function UserProfile({ onBack }: UserProfileProps) {
                     {stations.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 ) : (
-                  <span>{user.area}エリア</span>
+                  <span className="text-sm font-medium">{user.area}エリア</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* ステータス (モックデータ) */}
-          <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-2xl mb-6 border border-slate-100">
+          <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-2xl mb-8 border border-slate-100">
             <div className="text-center">
               <div className="text-2xl font-bold text-cyan-600 mb-1">84</div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">ワークアウト</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">ワークアウト</div>
             </div>
             <div className="text-center border-x border-slate-200">
               <div className="text-2xl font-bold text-blue-600 mb-1">23</div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">マッチング</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">マッチング</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600 mb-1">1</div>
-              <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">達成ゴール</div>
+              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">達成ゴール</div>
             </div>
           </div>
 
           {/* 詳細情報 */}
-          <div className="space-y-6">
-            {/* エリア */}
+          <div className="space-y-8">
+            {/* よく使う場所 */}
             <div>
-              <div className="flex items-center gap-2 text-slate-700 mb-3">
-                <MapPin className="size-5 text-cyan-500" />
-                <span className="font-bold text-sm">活動エリア</span>
+              <div className="flex items-center gap-2 text-slate-800 mb-3">
+                <div className="p-1.5 bg-red-50 rounded-lg">
+                  <MapPin className="size-4 text-red-500" />
+                </div>
+                <span className="font-bold text-sm">よく使う場所 (ジム名など)</span>
               </div>
-              <div className="flex flex-wrap gap-2 ml-7">
-                {(isEditing ? editForm?.nearbyStations : user.nearbyStations)?.map((station, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-lg text-xs font-semibold"
-                  >
-                    {station}
-                  </span>
-                ))}
+              <div className="ml-10">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editForm?.preferredGyms?.join(', ') || ''}
+                    onChange={(e) => setEditForm(prev => prev ? { ...prev, preferredGyms: e.target.value.split(/[,、\s]+/).filter(g => g.trim()) } : null)}
+                    placeholder="ジム名をカンマ区切りで入力"
+                    className="w-full text-sm border-b border-slate-200 py-1 focus:outline-none focus:border-cyan-500 bg-slate-50 px-2"
+                  />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {user.preferredGyms && user.preferredGyms.length > 0 ? (
+                      user.preferredGyms.map((gym, idx) => (
+                        <span key={idx} className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-100">
+                          {gym}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-400 text-xs italic">未設定</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* トレーニング日 */}
+            <div>
+              <div className="flex items-center gap-2 text-slate-800 mb-3">
+                <div className="p-1.5 bg-purple-50 rounded-lg">
+                  <Calendar className="size-4 text-purple-500" />
+                </div>
+                <span className="font-bold text-sm">普段トレーニングする曜日</span>
+              </div>
+              <div className="ml-10 flex flex-wrap gap-2">
+                {days.map(day => {
+                  const isSelected = isEditing
+                    ? editForm?.preferredDays?.includes(day)
+                    : user.preferredDays?.includes(day);
+
+                  return (
+                    <button
+                      key={day}
+                      disabled={!isEditing}
+                      onClick={() => toggleDay(day)}
+                      className={`size-9 rounded-full text-xs font-bold transition-all flex items-center justify-center border ${isSelected
+                        ? 'bg-purple-500 border-purple-500 text-white shadow-md shadow-purple-500/30'
+                        : 'bg-white border-slate-200 text-slate-400'
+                        }`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* トレーニングカテゴリ */}
             <div>
-              <div className="flex items-center gap-2 text-slate-700 mb-3">
-                <Dumbbell className="size-5 text-orange-500" />
+              <div className="flex items-center gap-2 text-slate-800 mb-3">
+                <div className="p-1.5 bg-orange-50 rounded-lg">
+                  <Dumbbell className="size-4 text-orange-500" />
+                </div>
                 <span className="font-bold text-sm">よくやるカテゴリ</span>
               </div>
-              <div className="flex flex-wrap gap-2 ml-7">
+              <div className="flex flex-wrap gap-2 ml-10">
                 {(isEditing ? categories : user.preferredCategories).map((cat) => {
                   const isSelected = isEditing
                     ? editForm?.preferredCategories.includes(cat)
@@ -156,9 +214,9 @@ export function UserProfile({ onBack }: UserProfileProps) {
                       key={cat}
                       disabled={!isEditing}
                       onClick={() => toggleCategory(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${isSelected
-                          ? 'bg-orange-400 text-white shadow-md shadow-orange-400/30'
-                          : 'bg-orange-50 text-orange-600 border border-orange-100'
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${isSelected
+                        ? 'bg-orange-400 border-orange-400 text-white shadow-md shadow-orange-400/30'
+                        : 'bg-white border-slate-200 text-slate-500'
                         }`}
                     >
                       {cat}
@@ -170,16 +228,18 @@ export function UserProfile({ onBack }: UserProfileProps) {
 
             {/* トレーニングレベル */}
             <div>
-              <div className="flex items-center gap-2 text-slate-700 mb-2">
-                <TrendingUp className="size-5 text-blue-500" />
+              <div className="flex items-center gap-2 text-slate-800 mb-3">
+                <div className="p-1.5 bg-blue-50 rounded-lg">
+                  <TrendingUp className="size-4 text-blue-500" />
+                </div>
                 <span className="font-bold text-sm">レベル</span>
               </div>
-              <div className="ml-7">
+              <div className="ml-10">
                 {isEditing ? (
                   <select
                     value={editForm?.experienceLevel || ''}
                     onChange={(e) => setEditForm(prev => prev ? { ...prev, experienceLevel: e.target.value } : null)}
-                    className="w-full bg-slate-50 border-b border-slate-300 focus:outline-none py-2 text-sm text-slate-700"
+                    className="w-full bg-slate-50 border-b border-slate-300 focus:outline-none py-2 text-sm font-bold text-slate-700 px-2"
                   >
                     <option value="初心者">初心者</option>
                     <option value="中級者">中級者</option>
@@ -187,7 +247,7 @@ export function UserProfile({ onBack }: UserProfileProps) {
                     <option value="エキスパート">エキスパート</option>
                   </select>
                 ) : (
-                  <span className="text-slate-600 bg-blue-50 px-3 py-1 rounded-lg text-xs font-semibold text-blue-700">
+                  <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-extrabold border border-blue-100 uppercase tracking-tight">
                     {user.experienceLevel}
                   </span>
                 )}
@@ -198,7 +258,7 @@ export function UserProfile({ onBack }: UserProfileProps) {
             <div className="border-t border-slate-100 pt-6">
               <button
                 onClick={logout}
-                className="w-full py-4 text-red-500 font-bold text-sm bg-red-50 rounded-2xl border border-red-100 hover:bg-red-100 transition-colors"
+                className="w-full py-4 text-red-500 font-bold text-sm bg-red-50 rounded-2xl border border-red-100 hover:bg-red-100 transition-colors shadow-sm"
               >
                 ログアウト
               </button>

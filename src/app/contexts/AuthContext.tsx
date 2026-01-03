@@ -12,6 +12,8 @@ interface UserProfile {
     companionStyle: string;
     gender: string;
     genderPreference: string;
+    preferredDays: string[];
+    preferredGyms: string[];
 }
 
 interface AuthContextType {
