@@ -1,7 +1,8 @@
 import { UserStatus } from './StatusInput';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, MapPin, Calendar, Dumbbell, Target, Heart, Check, Users, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { storage } from '../lib/storage';
 
 interface Match {
   id: string;
@@ -36,7 +37,27 @@ export function MatchList({ userStatus, onMatchSelect, onDirectChat, onSearchCli
   const [selectedDeadline, setSelectedDeadline] = useState<{ [key: string]: { date: string; time: string } }>({});
   const [dateSelectionMode, setDateSelectionMode] = useState<{ [key: string]: 'today' | 'tomorrow' | 'calendar' }>({});
   const [calendarMonth, setCalendarMonth] = useState<{ [key: string]: { year: number; month: number } }>({});
-  const [favoriteMatches, setFavoriteMatches] = useState<Set<string>>(new Set(['1', '3'])); // 初期値として一部を登録済み
+  const [favoriteMatches, setFavoriteMatches] = useState<Set<string>>(new Set());
+
+  // 永続化データの読み込み
+  useEffect(() => {
+    const savedMatches = storage.get<{ requested: string[]; favorite: string[] }>('MATCHES');
+    if (savedMatches) {
+      if (savedMatches.requested) setRequestedMatches(new Set(savedMatches.requested));
+      if (savedMatches.favorite) setFavoriteMatches(new Set(savedMatches.favorite));
+    } else {
+      // 初期お気に入り
+      setFavoriteMatches(new Set(['1', '3']));
+    }
+  }, []);
+
+  // 永続化データの保存
+  const saveMatches = (newRequested: Set<string>, newFavorite: Set<string>) => {
+    storage.set('MATCHES', {
+      requested: Array.from(newRequested),
+      favorite: Array.from(newFavorite)
+    });
+  };
 
   const quickMessages = [
     'よろしくお願いします！',
@@ -492,11 +513,10 @@ export function MatchList({ userStatus, onMatchSelect, onDirectChat, onSearchCli
                     <>
                       <button
                         onClick={() => {
-                          setRequestedMatches(prev => {
-                            const newSet = new Set(prev);
-                            newSet.delete(match.id);
-                            return newSet;
-                          });
+                          const newRequested = new Set(requestedMatches);
+                          newRequested.delete(match.id);
+                          setRequestedMatches(newRequested);
+                          saveMatches(newRequested, favoriteMatches);
                         }}
                         className="px-4 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors border border-red-200"
                       >
@@ -748,7 +768,9 @@ export function MatchList({ userStatus, onMatchSelect, onDirectChat, onSearchCli
                                 alert('返信期限（日付と時刻）を選択してください');
                                 return;
                               }
-                              setRequestedMatches(prev => new Set([...prev, match.id]));
+                              const newRequested = new Set([...requestedMatches, match.id]);
+                              setRequestedMatches(newRequested);
+                              saveMatches(newRequested, favoriteMatches);
                               setShowingMessageFor(null);
                               // メッセージ送信のシミュレーション
                               console.log(`送信: ${msg} to ${match.name}, 期限: ${formatFullDate(new Date(selectedDeadline[match.id].date))} ${selectedDeadline[match.id].time}`);
@@ -766,7 +788,9 @@ export function MatchList({ userStatus, onMatchSelect, onDirectChat, onSearchCli
                           alert('返信期限（日付と時刻）を選択してください');
                           return;
                         }
-                        setRequestedMatches(prev => new Set([...prev, match.id]));
+                        const newRequested = new Set([...requestedMatches, match.id]);
+                        setRequestedMatches(newRequested);
+                        saveMatches(newRequested, favoriteMatches);
                         setShowingMessageFor(null);
                       }}
                       className="w-full px-4 py-2 bg-slate-200 text-slate-700 rounded-xl hover:bg-slate-300 transition-colors text-sm"

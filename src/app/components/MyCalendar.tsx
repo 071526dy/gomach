@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar } from './ui/calendar';
+import { storage } from '../lib/storage';
 
 interface ScheduledWorkout {
   id: string;
@@ -22,53 +23,68 @@ interface MyCalendarProps {
 }
 
 export function MyCalendar({ onBack, onScheduleClick }: MyCalendarProps) {
-  // モックデータ：予定されたトレーニング
-  const [schedules] = useState<ScheduledWorkout[]>([
-    {
-      id: '1',
-      date: new Date(),
-      gym: '渋谷エニタイム',
-      time: '夜',
-      category: '背中',
-      status: 'matched',
-      matchedUser: { 
-        name: 'ユーザーA', 
-        compatibility: 92,
-        experienceLevel: 'intermediate',
-        levelPreference: 'same',
-      },
-    },
-    {
-      id: '2',
-      date: new Date(new Date().setDate(new Date().getDate() + 1)),
-      gym: '新宿ゴールドジム',
-      time: '夕方',
-      category: '胸',
-      status: 'pending',
-    },
-    {
-      id: '3',
-      date: new Date(new Date().setDate(new Date().getDate() + 3)),
-      gym: '渋谷エニタイム',
-      time: '夜',
-      category: '脚',
-      status: 'matched',
-      matchedUser: { 
-        name: 'ユーザーB', 
-        compatibility: 85,
-        experienceLevel: 'advanced',
-        levelPreference: 'teach',
-      },
-    },
-    {
-      id: '4',
-      date: new Date(new Date().setDate(new Date().getDate() + 5)),
-      gym: '恵比寿24h',
-      time: '夕方',
-      category: '上半身',
-      status: 'pending',
-    },
-  ]);
+  const [schedules, setSchedules] = useState<ScheduledWorkout[]>([]);
+
+  // データの読み込み
+  useEffect(() => {
+    const savedSchedules = storage.get<any[]>('SCHEDULES');
+    if (savedSchedules && savedSchedules.length > 0) {
+      setSchedules(savedSchedules.map(s => ({
+        ...s,
+        date: new Date(s.date)
+      })));
+    } else {
+      // モックデータ：初回のみ
+      const initialSchedules: ScheduledWorkout[] = [
+        {
+          id: '1',
+          date: new Date(),
+          gym: '渋谷エニタイム',
+          time: '夜',
+          category: '背中',
+          status: 'matched',
+          matchedUser: {
+            name: 'ユーザーA',
+            compatibility: 92,
+            experienceLevel: 'intermediate',
+            levelPreference: 'same',
+          },
+        },
+        {
+          id: '2',
+          date: new Date(new Date().setDate(new Date().getDate() + 1)),
+          gym: '新宿ゴールドジム',
+          time: '夕方',
+          category: '胸',
+          status: 'pending',
+        },
+        {
+          id: '3',
+          date: new Date(new Date().setDate(new Date().getDate() + 3)),
+          gym: '渋谷エニタイム',
+          time: '夜',
+          category: '脚',
+          status: 'matched',
+          matchedUser: {
+            name: 'ユーザーB',
+            compatibility: 85,
+            experienceLevel: 'advanced',
+            levelPreference: 'teach',
+          },
+        },
+        {
+          id: '4',
+          date: new Date(new Date().setDate(new Date().getDate() + 5)),
+          gym: '恵比寿24h',
+          time: '夕方',
+          category: '上半身',
+          status: 'pending',
+        },
+      ];
+      setSchedules(initialSchedules);
+      storage.set('SCHEDULES', initialSchedules);
+    }
+  }, []);
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
