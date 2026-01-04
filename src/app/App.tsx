@@ -54,7 +54,10 @@ function AppContent() {
   const [viewingMatch, setViewingMatch] = useState<Match | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [chatMatch, setChatMatch] = useState<Match | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+
+  // スマホ端末かどうかを判定
+  const isPhysicalMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const [viewMode, setViewMode] = useState<ViewMode>(isPhysicalMobile ? 'mobile' : 'desktop');
 
   useEffect(() => {
     // 保存されたステータスを読み込む
@@ -127,38 +130,40 @@ function AppContent() {
 
   return (
     <div className="relative min-h-screen bg-slate-100">
-      {/* View Mode Toggle */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex gap-2 bg-white/80 backdrop-blur-md p-1.5 rounded-2xl shadow-xl border border-white/20">
-        <button
-          onClick={() => setViewMode('desktop')}
-          className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'desktop'
-            ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-200 scale-105'
-            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-            }`}
-          title="Desktop View"
-        >
-          <Monitor size={20} />
-        </button>
-        <button
-          onClick={() => setViewMode('mobile')}
-          className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'mobile'
-            ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-200 scale-105'
-            : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-            }`}
-          title="Mobile View"
-        >
-          <Smartphone size={20} />
-        </button>
-      </div>
+      {/* View Mode Toggle - PCの場合のみ表示 */}
+      {!isPhysicalMobile && (
+        <div className="fixed bottom-6 right-6 z-[9999] flex gap-2 bg-white/80 backdrop-blur-md p-1.5 rounded-2xl shadow-xl border border-white/20">
+          <button
+            onClick={() => setViewMode('desktop')}
+            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'desktop'
+              ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-200 scale-105'
+              : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+              }`}
+            title="Desktop View"
+          >
+            <Monitor size={20} />
+          </button>
+          <button
+            onClick={() => setViewMode('mobile')}
+            className={`p-2.5 rounded-xl transition-all duration-300 ${viewMode === 'mobile'
+              ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-200 scale-105'
+              : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+              }`}
+            title="Mobile View"
+          >
+            <Smartphone size={20} />
+          </button>
+        </div>
+      )}
 
-      <div className={`transition-all duration-500 ease-in-out flex items-center justify-center min-h-screen ${viewMode === 'mobile' ? 'py-8' : ''
+      <div className={`transition-all duration-500 ease-in-out flex items-center justify-center min-h-screen ${(viewMode === 'mobile' && !isPhysicalMobile) ? 'py-8' : ''
         }`}>
-        <div className={`transition-all duration-500 ease-in-out bg-white overflow-hidden ${viewMode === 'mobile'
+        <div className={`transition-all duration-500 ease-in-out bg-white overflow-hidden ${(viewMode === 'mobile' && !isPhysicalMobile)
           ? 'w-[375px] h-[667px] rounded-[3rem] shadow-2xl border-[8px] border-slate-900 relative'
           : 'w-full min-h-screen'
           }`}>
-          {/* Mobile Notch simulation */}
-          {viewMode === 'mobile' && (
+          {/* Mobile Notch simulation - PCでのプレビュー時のみ表示 */}
+          {(viewMode === 'mobile' && !isPhysicalMobile) && (
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-6 bg-slate-900 rounded-b-2xl z-50 flex items-center justify-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-slate-800" />
               <div className="w-8 h-1 rounded-full bg-slate-800" />
