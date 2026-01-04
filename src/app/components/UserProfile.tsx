@@ -13,6 +13,15 @@ export function UserProfile({ onBack }: UserProfileProps) {
 
   if (!user) return null;
 
+  const levels = ['初心者', '中級者', '上級者', 'エキスパート'];
+  const snsTypes = [
+    { id: 'instagram', label: 'Instagram', icon: '📸' },
+    { id: 'x', label: 'X (Twitter)', icon: '🐦' },
+    { id: 'threads', label: 'Threads', icon: '🧵' },
+    { id: 'tiktok', label: 'TikTok', icon: '🎵' },
+    { id: 'other', label: 'その他', icon: '🔗' }
+  ];
+
   const handleSave = () => {
     if (editForm) {
       updateProfile(editForm);
@@ -40,6 +49,24 @@ export function UserProfile({ onBack }: UserProfileProps) {
       ? current.filter(d => d !== day)
       : [...current, day];
     setEditForm({ ...editForm, preferredDays: updated });
+  };
+
+  const addSns = () => {
+    if (!editForm) return;
+    const current = editForm.snsAccounts || [];
+    setEditForm({ ...editForm, snsAccounts: [...current, { type: 'instagram', url: '' }] });
+  };
+
+  const updateSns = (index: number, field: string, value: string) => {
+    if (!editForm) return;
+    const updated = [...(editForm.snsAccounts || [])];
+    updated[index] = { ...updated[index], [field]: value };
+    setEditForm({ ...editForm, snsAccounts: updated });
+  };
+
+  const removeSns = (index: number) => {
+    if (!editForm) return;
+    setEditForm({ ...editForm, snsAccounts: (editForm.snsAccounts || []).filter((_, i) => i !== index) });
   };
 
   return (
@@ -83,7 +110,7 @@ export function UserProfile({ onBack }: UserProfileProps) {
           {/* アイコンと基本情報 */}
           <div className="flex items-center gap-4 mb-6">
             <div className="size-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-3xl shadow-inner border-4 border-white">
-              💪
+              {user.gender === '女性' ? '🧘‍♀️' : '💪'}
             </div>
             <div className="flex-1">
               {isEditing ? (
@@ -131,6 +158,100 @@ export function UserProfile({ onBack }: UserProfileProps) {
 
           {/* 詳細情報 */}
           <div className="space-y-8">
+            {/* 性別 */}
+            <div>
+              <div className="flex items-center gap-2 text-slate-800 mb-3">
+                <div className="p-1.5 bg-blue-50 rounded-lg">
+                  <User className="size-4 text-blue-500" />
+                </div>
+                <span className="font-bold text-sm">性別</span>
+              </div>
+              <div className="ml-10">
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    {['男性', '女性', '回答しない'].map(g => (
+                      <button
+                        key={g}
+                        onClick={() => setEditForm(prev => prev ? { ...prev, gender: g } : null)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all border ${editForm?.gender === g
+                          ? 'bg-blue-500 border-blue-500 text-white shadow-md shadow-blue-500/30'
+                          : 'bg-white border-slate-200 text-slate-400'
+                          }`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm font-medium text-slate-700">{user.gender || '未設定'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* SNS */}
+            <div>
+              <div className="flex items-center gap-2 text-slate-800 mb-3">
+                <div className="p-1.5 bg-indigo-50 rounded-lg">
+                  <BookOpen className="size-4 text-indigo-500" />
+                </div>
+                <span className="font-bold text-sm">SNSリンク</span>
+              </div>
+              <div className="ml-10 space-y-3">
+                {isEditing ? (
+                  <>
+                    {(editForm?.snsAccounts || []).map((sns, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <select
+                          value={sns.type}
+                          onChange={(e) => updateSns(idx, 'type', e.target.value as any)}
+                          className="bg-slate-50 border border-slate-200 rounded-lg p-1 text-sm"
+                        >
+                          {snsTypes.map(t => (
+                            <option key={t.id} value={t.id}>{t.icon}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={sns.url}
+                          onChange={(e) => updateSns(idx, 'url', e.target.value)}
+                          placeholder="URLを入力"
+                          className="flex-1 text-xs border-b border-slate-200 py-1 focus:outline-none focus:border-cyan-500 bg-transparent"
+                        />
+                        <button onClick={() => removeSns(idx)} className="text-slate-300 hover:text-red-500 text-lg">×</button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={addSns}
+                      className="w-full py-2 bg-slate-50 border border-dashed border-slate-300 rounded-xl text-[10px] text-slate-500 hover:bg-slate-100"
+                    >
+                      + SNSを追加
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-wrap gap-3">
+                    {user.snsAccounts && user.snsAccounts.length > 0 ? (
+                      user.snsAccounts.map((sns, idx) => {
+                        const type = snsTypes.find(t => t.id === sns.type);
+                        return (
+                          <a
+                            key={idx}
+                            href={sns.url.startsWith('http') ? sns.url : `https://${sns.url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 bg-slate-100 rounded-full hover:bg-cyan-100 transition-colors"
+                            title={type?.label}
+                          >
+                            <span className="text-lg">{type?.icon}</span>
+                          </a>
+                        );
+                      })
+                    ) : (
+                      <span className="text-slate-400 text-xs italic">未設定</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
             {/* よく使う場所 */}
             <div>
               <div className="flex items-center gap-2 text-slate-800 mb-3">

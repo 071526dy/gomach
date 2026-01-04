@@ -2,6 +2,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '../lib/storage';
 
+interface SNSAccount {
+    type: 'instagram' | 'x' | 'threads' | 'tiktok' | 'other';
+    url: string;
+}
+
 interface UserProfile {
     name: string;
     area: string;
@@ -14,6 +19,7 @@ interface UserProfile {
     genderPreference: string;
     preferredDays: string[];
     preferredGyms: string[];
+    snsAccounts: SNSAccount[];
 }
 
 interface AuthContextType {

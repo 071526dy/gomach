@@ -12,10 +12,19 @@ export function Welcome() {
     const [experienceLevel, setExperienceLevel] = useState('初心者');
     const [gyms, setGyms] = useState('');
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
+    const [gender, setGender] = useState('未設定');
+    const [snsAccounts, setSnsAccounts] = useState<{ type: any, url: string }[]>([]);
 
     const categories = ['脚', '背中', '胸', '上半身', '有酸素', 'フリーウェイト', 'マシン'];
     const levels = ['初心者', '中級者', '上級者', 'エキスパート'];
     const days = ['月', '火', '水', '木', '金', '土', '日'];
+    const snsTypes = [
+        { id: 'instagram', label: 'Instagram', icon: '📸' },
+        { id: 'x', label: 'X (Twitter)', icon: '🐦' },
+        { id: 'threads', label: 'Threads', icon: '🧵' },
+        { id: 'tiktok', label: 'TikTok', icon: '🎵' },
+        { id: 'other', label: 'その他', icon: '🔗' }
+    ];
 
     const handleStart = () => {
         if (!name.trim()) {
@@ -32,10 +41,11 @@ export function Welcome() {
             preferredTime: '午後 (18:00-21:00)',
             preferredCategories: selectedCategories.length > 0 ? selectedCategories : ['胸', '背中'],
             companionStyle: '入口から一緒に入れたらOK',
-            gender: '未設定',
+            gender,
             genderPreference: '指定なし',
             preferredDays: selectedDays,
             preferredGyms: gyms.split(/[,、\s]+/).filter(g => g.trim()),
+            snsAccounts: snsAccounts.filter(s => s.url.trim()),
         });
     };
 
@@ -51,6 +61,20 @@ export function Welcome() {
         );
     };
 
+    const addSns = () => {
+        setSnsAccounts([...snsAccounts, { type: 'instagram', url: '' }]);
+    };
+
+    const updateSns = (index: number, field: string, value: string) => {
+        const updated = [...snsAccounts];
+        updated[index] = { ...updated[index], [field]: value };
+        setSnsAccounts(updated);
+    };
+
+    const removeSns = (index: number) => {
+        setSnsAccounts(snsAccounts.filter((_, i) => i !== index));
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-700 flex flex-col items-center justify-center px-6 text-white py-12">
             <div className="mb-8 text-center">
@@ -61,7 +85,7 @@ export function Welcome() {
             <div className="w-full max-w-sm bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/20 shadow-2xl">
                 {/* プログレスバー */}
                 <div className="flex gap-1.5 mb-8 justify-center">
-                    {[1, 2, 3].map(i => (
+                    {[1, 2, 3, 4].map(i => (
                         <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${step >= i ? 'w-8 bg-cyan-400' : 'w-4 bg-white/20'}`} />
                     ))}
                 </div>
@@ -114,8 +138,8 @@ export function Welcome() {
                                         key={cat}
                                         onClick={() => toggleCategory(cat)}
                                         className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${selectedCategories.includes(cat)
-                                                ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
-                                                : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                                            ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
+                                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         {cat}
@@ -132,8 +156,8 @@ export function Welcome() {
                                         key={l}
                                         onClick={() => setExperienceLevel(l)}
                                         className={`px-4 py-3 rounded-xl text-xs font-bold transition-all border ${experienceLevel === l
-                                                ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
-                                                : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                                            ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
+                                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         {l}
@@ -182,8 +206,8 @@ export function Welcome() {
                                         key={day}
                                         onClick={() => toggleDay(day)}
                                         className={`size-10 rounded-full text-xs font-bold border transition-all flex items-center justify-center ${selectedDays.includes(day)
-                                                ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
-                                                : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                                            ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
+                                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         {day}
@@ -195,6 +219,78 @@ export function Welcome() {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setStep(2)}
+                                className="w-1/3 bg-white/10 text-white py-4 rounded-2xl font-bold border border-white/20 flex items-center justify-center"
+                            >
+                                <ChevronLeft className="size-5" />
+                            </button>
+                            <button
+                                onClick={() => setStep(4)}
+                                className="flex-1 bg-white text-blue-600 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
+                                次へ <ChevronRight className="size-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {step === 4 && (
+                    <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                        <h2 className="text-xl font-bold mb-6 text-center text-white">最後に</h2>
+
+                        <div className="mb-6">
+                            <label className="block text-xs font-bold text-cyan-200 uppercase tracking-widest mb-3 ml-1">性別</label>
+                            <div className="flex gap-2">
+                                {['男性', '女性', '回答しない'].map(g => (
+                                    <button
+                                        key={g}
+                                        onClick={() => setGender(g)}
+                                        className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all border ${gender === g
+                                            ? 'bg-cyan-400 border-cyan-400 text-white shadow-lg shadow-cyan-400/30'
+                                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        {g}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mb-8">
+                            <label className="block text-xs font-bold text-cyan-200 uppercase tracking-widest mb-3 ml-1">SNS連携 (任意)</label>
+                            <div className="space-y-3 max-h-40 overflow-y-auto pr-1 scrollbar-hide">
+                                {snsAccounts.map((sns, idx) => (
+                                    <div key={idx} className="flex gap-2">
+                                        <select
+                                            value={sns.type}
+                                            onChange={(e) => updateSns(idx, 'type', e.target.value)}
+                                            className="w-20 bg-white/10 border border-white/30 rounded-xl text-[10px] focus:outline-none"
+                                        >
+                                            {snsTypes.map(t => (
+                                                <option key={t.id} value={t.id} className="text-slate-900">{t.icon}</option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            type="text"
+                                            value={sns.url}
+                                            onChange={(e) => updateSns(idx, 'url', e.target.value)}
+                                            placeholder="URLを入力"
+                                            className="flex-1 px-3 py-2 bg-white/10 border border-white/30 rounded-xl text-xs focus:outline-none"
+                                        />
+                                        <button onClick={() => removeSns(idx)} className="text-white/40 hover:text-red-400 px-1">×</button>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={addSns}
+                                    className="w-full py-2 bg-white/5 border border-dashed border-white/20 rounded-xl text-[10px] text-white/60 hover:bg-white/10"
+                                >
+                                    + SNSを追加
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setStep(3)}
                                 className="w-1/3 bg-white/10 text-white py-4 rounded-2xl font-bold border border-white/20 flex items-center justify-center"
                             >
                                 <ChevronLeft className="size-5" />
