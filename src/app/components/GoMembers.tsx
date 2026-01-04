@@ -19,41 +19,7 @@ interface GoMember {
 
 export function GoMembers({ onBack }: GoMembersProps) {
   // モックデータ
-  const [goMembers] = useState<GoMember[]>([
-    {
-      id: '1',
-      name: '佐藤 みなみ',
-      area: '渋谷',
-      compatibility: 92,
-      experienceLevel: '中級者',
-      preferredCategories: ['背中', '脚'],
-      addedDate: new Date('2024-12-20'),
-      totalWorkouts: 5,
-      lastWorkout: new Date('2024-12-28'),
-    },
-    {
-      id: '2',
-      name: '山田 健',
-      area: '恵比寿',
-      compatibility: 88,
-      experienceLevel: '上級者',
-      preferredCategories: ['胸', '背中', '有酸素'],
-      addedDate: new Date('2024-12-15'),
-      totalWorkouts: 8,
-      lastWorkout: new Date('2024-12-30'),
-    },
-    {
-      id: '3',
-      name: '鈴木 あい',
-      area: '表参道',
-      compatibility: 85,
-      experienceLevel: '初心者',
-      preferredCategories: ['上半身', '有酸素'],
-      addedDate: new Date('2024-12-10'),
-      totalWorkouts: 12,
-      lastWorkout: new Date('2024-12-29'),
-    },
-  ]);
+  const [goMembers] = useState<GoMember[]>([]);
 
   const getExperienceLevelEmoji = (level: string) => {
     const levels: { [key: string]: string } = {
@@ -69,7 +35,7 @@ export function GoMembers({ onBack }: GoMembersProps) {
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return '今日';
     if (diffDays === 1) return '昨日';
     if (diffDays < 7) return `${diffDays}日前`;

@@ -46,8 +46,8 @@ export function MatchList({ userStatus, onMatchSelect, onDirectChat, onSearchCli
       if (savedMatches.requested) setRequestedMatches(new Set(savedMatches.requested));
       if (savedMatches.favorite) setFavoriteMatches(new Set(savedMatches.favorite));
     } else {
-      // 初期お気に入り
-      setFavoriteMatches(new Set(['1', '3']));
+      // 初期お気に入り (空にする)
+      setFavoriteMatches(new Set());
     }
   }, []);
 
@@ -199,77 +199,8 @@ export function MatchList({ userStatus, onMatchSelect, onDirectChat, onSearchCli
     return times;
   };
 
-  // モックマッチデータ
-  const allMatches: Match[] = [
-    {
-      id: '1',
-      name: 'ユーザーA',
-      compatibility: 92,
-      gym: '渋谷',
-      time: '19:00',
-      category: '背中',
-      mode: '誘われ待ち',
-      style: '入口から一緒に入れたらOK',
-      commonTags: ['同じエリア', '同時間帯', '同伴希望', 'カテゴリ一致'],
-      isInCommonGoal: true,
-      experienceLevel: 'intermediate',
-      levelPreference: 'same',
-    },
-    {
-      id: '2',
-      name: 'ユーザーB',
-      compatibility: 85,
-      gym: '渋谷',
-      time: '20:00',
-      category: '上半身',
-      mode: '誘う側 OK',
-      style: '同じ時間帯だけ一緒',
-      commonTags: ['同じエリア', '同時間帯', '近いカテゴリ'],
-      isInCommonGoal: true,
-      experienceLevel: 'advanced',
-      levelPreference: 'teach',
-    },
-    {
-      id: '3',
-      name: 'ユーザーC',
-      compatibility: 78,
-      gym: '新宿',
-      time: '18:30',
-      category: '背中',
-      mode: '誘われ待ち',
-      style: '近いメニューで軽く合わせる',
-      commonTags: ['同時間帯', 'カテゴリ一致', '同伴希望'],
-      experienceLevel: 'beginner',
-      levelPreference: 'learn',
-    },
-    {
-      id: '4',
-      name: 'ユーザーD',
-      compatibility: 72,
-      gym: '恵比寿',
-      time: '17:00',
-      category: '脚',
-      mode: '誘われ待ち',
-      style: '入口から一緒に入れたらOK',
-      commonTags: ['近いエリア', '近い時間帯'],
-      experienceLevel: 'expert',
-      levelPreference: 'same',
-    },
-    {
-      id: '5',
-      name: 'ユーザーE',
-      compatibility: 88,
-      gym: '表参道',
-      time: '18:00',
-      category: '胸',
-      mode: '誘われ待ち',
-      style: '同じ時間帯だけ一緒',
-      commonTags: ['近いエリア', '同時間帯'],
-      isInCommonGoal: false,
-      experienceLevel: 'intermediate',
-      levelPreference: 'same',
-    },
-  ];
+  // モックマッチデータ (空にする)
+  const allMatches: Match[] = [];
 
   const { user } = useAuth();
 

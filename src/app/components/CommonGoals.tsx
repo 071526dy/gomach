@@ -18,12 +18,7 @@ interface CommonGoalsProps {
 
 export function CommonGoals({ onBack }: CommonGoalsProps) {
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
-  const [goals, setGoals] = useState<Goal[]>([
-    { id: '1', title: '週2ジム習慣', participants: 184, joined: true },
-    { id: '2', title: '毎朝筋トレ', participants: 92, joined: false },
-    { id: '3', title: '月間20回チャレンジ', participants: 156, joined: true },
-    { id: '4', title: 'ベンチプレス100kg', participants: 67, joined: false },
-  ]);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   // カレンダーログデータ（モック）
   const generateLogData = (): LogEntry[] => {
@@ -33,14 +28,14 @@ export function CommonGoals({ onBack }: CommonGoalsProps) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
-      
+
       // ランダムにステータスを割り当て
       const rand = Math.random();
       let status: '達成' | '休み' | 'ほどほど';
       if (rand > 0.7) status = '達成';
       else if (rand > 0.4) status = 'ほどほど';
       else status = '休み';
-      
+
       logs.push({ date: dateStr, status });
     }
     return logs;
@@ -95,13 +90,12 @@ export function CommonGoals({ onBack }: CommonGoalsProps) {
                     <span className="text-2xl">{getStatusEmoji(entry.status)}</span>
                   </div>
                   <span
-                    className={`text-sm px-3 py-1 rounded-full ${
-                      entry.status === '達成'
+                    className={`text-sm px-3 py-1 rounded-full ${entry.status === '達成'
                         ? 'bg-green-100 text-green-700'
                         : entry.status === 'ほどほど'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-slate-100 text-slate-600'
-                    }`}
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-slate-100 text-slate-600'
+                      }`}
                   >
                     {entry.status}
                   </span>
